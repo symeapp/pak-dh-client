@@ -1,4 +1,4 @@
-### Password-Authenticated Diffie-Hellman Key Exchange  (RFC 5683)
+### Password-Authenticated Diffie-Hellman Key Exchange
 
 _**Warning:** This is an alpha release and is not intended for production use. Peer review is appreciated._
 
