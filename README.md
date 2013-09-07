@@ -72,7 +72,7 @@ var Ka = pakdh.calculateK('A', 'B', gRa, Yba);
 
 ### Further Reading
 
-- RFC 5683 - Password-Authenticated Diffie-Hellman Key Exchange
+- [RFC 5683 - Password-Authenticated Diffie-Hellman Key Exchange](http://tools.ietf.org/html/rfc5683)
 
 ### License
 
