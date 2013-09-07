@@ -59,7 +59,6 @@ describe("PAKDHClient", function() {
 
   });
 
-  var Ka = pakdh.calculateK('A', 'B', gRa, Yba);
   var S2 = pakdh.calculateS2('A', 'B', gRa, Yba);
   var S2p = pakdh.calculateS2('A', 'B', Xab, gRb);
 
@@ -68,6 +67,8 @@ describe("PAKDHClient", function() {
     expect(S2.toString(16)).toEqual(S2p.toString(16));
 
   });
+  
+  var Ka = pakdh.calculateK('A', 'B', gRa, Yba);
 
   var Kb = pakdh.calculateK('A', 'B', Xab, gRb);
 

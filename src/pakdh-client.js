@@ -2,16 +2,13 @@
  * PAK allows two parties to authenticate themselves
  * while performing the Diffie-Hellman exchange.
  *
- * The protocol is secure against all passive and
- * active attacks.  In particular, it does not allow
- * either type of attacker to obtain any information
- * that would enable an offline dictionary attack on
- * the password.
- *
  * See http://tools.ietf.org/html/rfc5683
  */
 PAKDHClient = function (password, group) {
   
+  // Verify presence of password.
+  if (!password) throw 'Missing password.';
+
   // Store password.
   this.password = password;
   
@@ -51,11 +48,18 @@ PAKDHClient.prototype = {
   
   // Calculates g ^ x mod N
   modPow: function(x) {
+    
+    if (!x) throw 'Missing parameter.';
+    
     return this.g.modPow(x, this.N);
+    
   },
   
   // X = H1(A|B|PW)*(g^Ra)
   calculateX: function (A, B, gRa) {
+    
+    if (!A || !B || !gRa)
+      throw 'Missing parameters.';
     
     var str = A + B + this.password;
     
@@ -66,6 +70,9 @@ PAKDHClient.prototype = {
   // Xab = Q / H1(A|B|PW)
   calculateXab: function (A, B, Q) {
     
+    if (!A || !B || !Q)
+      throw 'Missing parameter(s).';
+      
     if (Q.toString() == '0')
       throw 'X should not be equal to 0.'
 
@@ -77,6 +84,9 @@ PAKDHClient.prototype = {
   
   // Y = H2(A|B|PW)*(g^Rb)
   calculateY: function (A, B, gRb) {
+    
+    if (!A || !B || !gRb)
+      throw 'Missing parameter(s).';
     
     var str = A + B + this.password;
     var Y = this.H2(str).multiply(gRb);
@@ -91,6 +101,9 @@ PAKDHClient.prototype = {
   // Yba = Y / H2(A|B|PW)
   calculateYba: function (A, B, Y) {
     
+    if (!A || !B || !Y)
+      throw 'Missing parameter(s).';
+    
     //var Y = this.calculateY(A, B, gRb);
     var str = A + B + this.password;
     
@@ -100,6 +113,9 @@ PAKDHClient.prototype = {
   
   // S1 = H3(A|B|PW|Xab|g^Rb|(Xab)^Rb)
   calculateS1: function (A, B, gRa, gRb) {
+    
+    if (!A || !B || !gRa || !gRb)
+      throw 'Missing parameter(s).';
     
     var AB = this.modPow(gRa.multiply(gRb));
     
@@ -114,6 +130,9 @@ PAKDHClient.prototype = {
   // S2 = H4(A|B|PW|g^Ra|Yba|(Yba)^Ra)
   calculateS2: function (A, B, gRa, gRb) {
     
+    if (!A || !B || !gRa || !gRb)
+      throw 'Missing parameter(s).'
+      
     var AB = this.modPow(gRa.multiply(gRb));
     
     return this.H4( A + B + 
@@ -127,6 +146,9 @@ PAKDHClient.prototype = {
   
   // K = H5(A|B|PW|g^Ra|Yba|(Yba)^Ra)
   calculateK: function (A, B, gRa, gRb) {
+    
+    if (!A || !B || !gRa || !gRb)
+      throw 'Missing parameter(s).'
     
     var AB = this.modPow(gRa.multiply(gRb));
     
@@ -146,14 +168,13 @@ PAKDHClient.prototype = {
   // Generate a 384-bit random exponent.
   random: function() {
     
-    var rng = new SecureRandom();
-    var rand = new BigInteger(384, rng);
+    var words = sjcl.random.randomWords(12,0);
+    var hex = sjcl.codec.hex.fromBits(words);
     
-    while (rand.toString(16).length * 4 != 384) {
-      rand = new BigInteger(384, rng);
-    } // Ensure the output is always 384 bits.
-  
-    return rand;
+    if (hex.length * 4 != 384)
+      throw 'Invalid random exponent size.';
+    
+    return new BigInteger(hex, 16);
 
   },
   
@@ -193,6 +214,10 @@ PAKDHClient.prototype = {
       hash += sjcl.codec.hex.fromBits(lsB);
       
     }
+    
+    // Verify hash is 1152 bits.
+    if (hash.length * 4 != 1152)
+      throw 'Invalid hash size.';
     
     return new BigInteger(hash, 16);
     
