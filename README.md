@@ -7,9 +7,9 @@ This library implements a Javascript client for password-authenticated key excha
 ### Usage
 
 ```javascript
+// A and B have identities and a shared password.
 
 var idA = 'A', idB = 'B', password = 'password';
-
 var pakdh = new PAKDHClient(password);
 
 // 1. A calculates X.
